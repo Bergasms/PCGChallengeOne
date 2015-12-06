@@ -4,8 +4,10 @@ import java.util.Random;
 
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Pixmap.Format;
+import com.badlogic.gdx.graphics.PixmapIO;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 
@@ -38,8 +40,8 @@ public class PCGChallenge extends ApplicationAdapter {
 		mpd = new MidpointDisplacement(bitcounter, 1.75f, mult);
 		int[][] intmap = mpd.getMap(new Random());
 		
-		int linethickness = 3;
-		int oceanShoreline = 180;
+		int linethickness = 5;
+		int oceanShoreline = 140;
 		
 		for(int i = 0; i<Math.min(mapW,mpd.width); i++) {
 			for(int j=0; j<Math.min(mapH, mpd.height); j++) {
@@ -59,7 +61,14 @@ public class PCGChallenge extends ApplicationAdapter {
 		
 		
 		map = new Texture(pmap);
+		FileHandle handle = new FileHandle("map.png");
+		int tries = 1;
+		while(handle.exists()) {
+			handle = new FileHandle("map" + tries + ".png");
+			tries++;
+		}
 		
+		PixmapIO.writePNG(handle, pmap);
 	}
 	
 	@Override
