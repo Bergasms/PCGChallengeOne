@@ -17,6 +17,7 @@ public class PCGChallenge extends ApplicationAdapter {
 	
 	final int mapW = 2048;
 	final int mapH = 2048;
+	final int mult = 4;
 	
 	SpriteBatch renderSprite;
 	
@@ -26,7 +27,7 @@ public class PCGChallenge extends ApplicationAdapter {
 		pmap = new Pixmap(mapW, mapH, Format.RGB888);
 		renderSprite = new SpriteBatch();
 		
-		int findbit = Math.max(mapW, mapH);
+		int findbit = Math.max((mapW/mult), (mapH/mult));
 		int bitcounter = 0;
 		while((findbit & 1) == 0) {
 			findbit = findbit >> 1;
@@ -34,17 +35,24 @@ public class PCGChallenge extends ApplicationAdapter {
 		}
 		
 		
-		mpd = new MidpointDisplacement(bitcounter, 1.75f, 1);
+		mpd = new MidpointDisplacement(bitcounter, 1.75f, mult);
 		int[][] intmap = mpd.getMap(new Random());
 		
 		int linethickness = 3;
-		int oceanShoreline = 160;
+		int oceanShoreline = 180;
 		
 		for(int i = 0; i<Math.min(mapW,mpd.width); i++) {
 			for(int j=0; j<Math.min(mapH, mpd.height); j++) {
-				float cv = intmap[i][j] > oceanShoreline && intmap[i][j] < oceanShoreline + linethickness ? 0.0f : 1.0f;
 				
-				pmap.setColor(intmap[i][j] > oceanShoreline + linethickness ? cv-0.2f : cv,cv,cv,1);
+				if(intmap[i][j] > oceanShoreline && intmap[i][j] < oceanShoreline + linethickness ) {
+					pmap.setColor(0, 0, 0, 1); //black lines for island borders
+				} else if(intmap[i][j] > oceanShoreline + linethickness) {
+					pmap.setColor(0.8f, 0.7f, 0.6f, 1.0f); //landmass
+				} else {
+					pmap.setColor(0.6f, 0.8f, 0.8f, 1.0f); //ocean
+				}
+				
+				
 				pmap.drawPixel(i, j);
 			}
 		}
