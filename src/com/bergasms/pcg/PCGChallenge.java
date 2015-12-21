@@ -74,8 +74,25 @@ public class PCGChallenge extends ApplicationAdapter {
 		beaches = new MidpointDisplacement(bitcounter, 2.25f, mult);
 		noisy = new MidpointDisplacement(bitcounter, 0.85f, mult);
 		Random r = new Random();
-		fg = new FeatureGenerator(r);
+		
 		int[][] intmap = mpd.getMap(r);
+		
+		int[] smoothIn = new int[intmap.length * intmap[0].length];
+		int[] smoothOut = new int[intmap.length * intmap[0].length];
+		int ic = 0;
+		for(int i=0; i<intmap.length; i++) {
+			for(int j=0; j<intmap[0].length; j++) {
+				smoothIn[ic++] = intmap[i][j];
+			}
+		}
+		BlurUtils.blurPass(smoothIn, smoothOut, intmap.length, intmap[0].length, 15);
+		ic = 0;
+		for(int i=0; i<intmap.length; i++) {
+			for(int j=0; j<intmap[0].length; j++) {
+				intmap[i][j] = smoothOut[ic++];
+			}
+		}
+		
 		int[][] vmap = vegetation.getMap(r);
 		int[][] bmap = beaches.getMap(r);
 		int[][] noise = noisy.getMap(r);
@@ -130,6 +147,23 @@ public class PCGChallenge extends ApplicationAdapter {
 		
 		findPotentialPlacesOfInterest(r,intmap);
 		
+		placeFeaturesOfInterest(r,font);
+		
+		
+		
+		map = new Texture(pmap);
+		
+		FileHandle handle = new FileHandle("map.png");
+		int tries = 1;
+		while(handle.exists()) {
+			handle = new FileHandle("map" + tries + ".png");
+			tries++;
+		}
+		
+		PixmapIO.writePNG(handle, pmap);
+	}
+	
+	private void placeFeaturesOfInterest(Random r, BitmapFont font) {
 		for(Feature f : features) {
 			pmap.setColor(f.type.colourForFeature());
 			int cx = (int)f.centre.x; 
@@ -233,24 +267,9 @@ public class PCGChallenge extends ApplicationAdapter {
 		    	TILE_WIDTH += fontsize/2;
 		    }
 		    
-
-			
 		}
-		
-		System.out.println("Done");
-		
-		map = new Texture(pmap);
-		
-		FileHandle handle = new FileHandle("map.png");
-		int tries = 1;
-		while(handle.exists()) {
-			handle = new FileHandle("map" + tries + ".png");
-			tries++;
-		}
-		
-		PixmapIO.writePNG(handle, pmap);
 	}
-	
+
 	private void drawHouse(Pixmap pmap2, int cx, int cy, int i) {
 		pmap2.setColor(0, 0, 0, 1);
 		pmap2.drawRectangle(cx-5, cy, i+1, i);
@@ -387,7 +406,7 @@ public class PCGChallenge extends ApplicationAdapter {
 		}
 		
 		final String[] places = {"Beach","Forest","Mountains","Ocean","Village"};
-		final String[] descriptor = {"Woe","Doom","Hell","Dispair","Suffering","Malignancy","Terror","Fear","Forboding","Fright"};
+		final String[] descriptor = {"Woe","Doom","Hell","Despair","Suffering","Malignancy","Terror","Fear","Forboding","Fright"};
 		
 		private void generateName(Random r) {
 			String namebuilder = places[this.type.ordinal()];
