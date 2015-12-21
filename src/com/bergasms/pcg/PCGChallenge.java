@@ -207,13 +207,23 @@ public class PCGChallenge extends ApplicationAdapter {
 			else {
 				pmap.fillCircle(cx,cy,rd);
 			}
+		}
+		for(Feature f : features) {
 			
-			pmap.setColor(0, 0, 0, 1);
+			int cx = (int)f.centre.x; 
+			int cy = (int)f.centre.y;
+			int rd = (int)f.radius;
+			
+			
 			BitmapFontData data = font.getData();
 			Pixmap fontPixmap = font.getRegion().getTexture().getTextureData().consumePixmap();
 			fontPixmap.setColor(0, 0, 0, 1);
+			pmap.setColor(0, 0, 0, 1);
+			
 		    int TILE_WIDTH = cx - (f.name.length() * (fontsize/2))/2;
 		    int TILE_HEIGHT = cy + rd + fontsize;
+		    
+		    pmap.fillRectangle(TILE_WIDTH - 8, TILE_HEIGHT - 12, (f.name.length() * (fontsize/2))+2, fontsize+2);
 		    
 		    for(int id=0; id<f.name.length(); id++) {
 		    	char c = f.name.charAt(id);
