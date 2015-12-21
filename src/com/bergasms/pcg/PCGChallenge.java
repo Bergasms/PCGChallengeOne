@@ -165,12 +165,8 @@ public class PCGChallenge extends ApplicationAdapter {
 			else if(f.type == FEATURE_TYPE.FT_LAND) {
 				
 				float c = 0.0f;
-				
-				
-				
-					pmap.setColor(c, c, c, 1);
-					pmap.fillTriangle(cx-rd/2, cy+rd, cx, cy, cx+rd/2, cy+rd);
-					rd -= 2;
+					drawHouse(pmap,cx,cy,10);
+					drawHouse(pmap,cx+10,cy-1,8);
 				
 			}
 			
@@ -179,12 +175,12 @@ public class PCGChallenge extends ApplicationAdapter {
 				pmap.setColor(0.3f, 0.3f, 0.1f, 1.0f);
 				pmap.fillRectangle(cx-3, cy, 6, 30);
 				
-				pmap.setColor(0.2f, 0.8f, 0, 1);
+				pmap.setColor(0.2f, 0.7f, 0, 1);
 				pmap.fillCircle(cx, cy, rd);
 				rd -= 5;
 				cy -= 3;
 				
-				pmap.setColor(0, 1, 0, 1);
+				pmap.setColor(0, 0.9f, 0, 1);
 				pmap.fillCircle(cx, cy, rd);
 				
 			}
@@ -207,6 +203,24 @@ public class PCGChallenge extends ApplicationAdapter {
 		PixmapIO.writePNG(handle, pmap);
 	}
 	
+	private void drawHouse(Pixmap pmap2, int cx, int cy, int i) {
+		pmap2.setColor(0, 0, 0, 1);
+		pmap2.drawRectangle(cx-5, cy, i+1, i);
+		pmap2.drawLine(cx-i/2, cy, cx, cy-i/2);
+		pmap2.drawLine(cx+i/2, cy, cx, cy-i/2);
+		
+		cy += 1;
+		pmap2.drawRectangle(cx-5, cy, i+1, i);
+		pmap2.drawLine(cx-i/2, cy, cx, cy-i/2);
+		pmap2.drawLine(cx+i/2, cy, cx, cy-i/2);
+
+		cy += 1;
+		pmap2.drawRectangle(cx-5, cy, i+1, i);
+		pmap2.drawLine(cx-i/2, cy, cx, cy-i/2);
+		pmap2.drawLine(cx+i/2, cy, cx, cy-i/2);
+		
+	}
+
 	private void findPotentialPlacesOfInterest(Random r, int[][] intmap) {
 		boolean[][] visitMap = new boolean[intmap.length][intmap[0].length];
 		
