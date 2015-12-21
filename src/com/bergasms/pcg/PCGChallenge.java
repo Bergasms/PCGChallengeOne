@@ -11,7 +11,15 @@ import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Pixmap.Format;
 import com.badlogic.gdx.graphics.PixmapIO;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.Texture.TextureFilter;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.graphics.g2d.BitmapFont.BitmapFontData;
+import com.badlogic.gdx.graphics.g2d.BitmapFont.Glyph;
+import com.badlogic.gdx.graphics.g2d.PixmapPacker;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.g2d.TextureAtlas;
+import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
+import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator.FreeTypeFontParameter;
 import com.badlogic.gdx.math.Circle;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
@@ -31,11 +39,22 @@ public class PCGChallenge extends ApplicationAdapter {
 	final int mapW = 2048;
 	final int mapH = 2048;
 	final int mult = 4;
+	final int fontsize = 24;
 	
 	SpriteBatch renderSprite;
 	
 	@Override
 	public void create () {
+		
+		FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal("Inconsolata-Bold.ttf"));
+		FreeTypeFontParameter parameter = new FreeTypeFontParameter();
+
+		parameter.size = fontsize;
+		BitmapFont font = generator.generateFont(parameter);
+		font.setColor(0, 0, 0, 1);
+		
+		generator.dispose();
+		
 		
 		pmap = new Pixmap(mapW, mapH, Format.RGB888);
 		renderSprite = new SpriteBatch();
@@ -188,11 +207,30 @@ public class PCGChallenge extends ApplicationAdapter {
 			else {
 				pmap.fillCircle(cx,cy,rd);
 			}
+			
+			pmap.setColor(0, 0, 0, 1);
+			BitmapFontData data = font.getData();
+			Pixmap fontPixmap = font.getRegion().getTexture().getTextureData().consumePixmap();
+			fontPixmap.setColor(0, 0, 0, 1);
+		    int TILE_WIDTH = cx - (f.name.length() * (fontsize/2))/2;
+		    int TILE_HEIGHT = cy + rd + fontsize;
+		    
+		    for(int id=0; id<f.name.length(); id++) {
+		    	char c = f.name.charAt(id);
+		    	Glyph glyph = data.getGlyph(c);
+		    	pmap.drawPixmap(fontPixmap, TILE_WIDTH - (glyph.width/ 2), TILE_HEIGHT - (glyph.height / 2),
+		                glyph.srcX, glyph.srcY, glyph.width, glyph.height);
+		    	TILE_WIDTH += fontsize/2;
+		    }
+		    
+
+			
 		}
 		
 		System.out.println("Done");
 		
 		map = new Texture(pmap);
+		
 		FileHandle handle = new FileHandle("map.png");
 		int tries = 1;
 		while(handle.exists()) {
@@ -280,6 +318,8 @@ public class PCGChallenge extends ApplicationAdapter {
 				
 				if(f.isValid) {
 					
+					f.assignType(f.type, r);
+					
 					for(int i=f.x; i<f.dx; i++) {
 						for(int j=f.y; j<f.dy; j++) {
 							visitMap[i][j] = true;
@@ -327,7 +367,25 @@ public class PCGChallenge extends ApplicationAdapter {
 			y = (int)pos.y;
 			dx = (int)pos.x + radius2*2;
 			dy = (int)pos.y + radius2*2;
+			
 		}
+		
+		public void assignType(FEATURE_TYPE type, Random r) {
+			this.type = type;
+
+			generateName(r);
+		}
+		
+		final String[] places = {"Beach","Forest","Mountains","Ocean","Village"};
+		final String[] descriptor = {"Woe","Doom","Hell","Dispair","Suffering","Malignancy","Terror","Fear","Forboding","Fright"};
+		
+		private void generateName(Random r) {
+			String namebuilder = places[this.type.ordinal()];
+			namebuilder += " of ";
+			namebuilder += descriptor[r.nextInt(descriptor.length)];
+			this.name = namebuilder;
+		}
+
 		public boolean isNotValid() {
 			// TODO Auto-generated method stub
 			return isValid == false;
