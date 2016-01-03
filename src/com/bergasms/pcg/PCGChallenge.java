@@ -245,7 +245,7 @@ public class PCGChallenge extends ApplicationAdapter {
 		
 		pmap.setColor(1, 0, 0, 1);
 		
-		int k = 40; //increase k for more fidelity to the spline
+		int k = 80; //increase k for more fidelity to the spline
 		int pset = (fullpath.size()-1) * 10;
 	    Vector2[] points = new Vector2[k];
 	    Vector2[] dataSet = new Vector2[pset];
@@ -479,7 +479,20 @@ public class PCGChallenge extends ApplicationAdapter {
 				
 			}
 			
-			else {
+			else if(f.type == FEATURE_TYPE.FT_BEACH) {
+				pmap.fillCircle(cx,cy,2);
+				pmap.fillCircle(cx+4,cy-2,2);
+				pmap.fillCircle(cx-3,cy+6,3);
+				
+			} else if(f.type == FEATURE_TYPE.FT_DESTINATION) {
+				rd*=2;
+				for(int i=0; i<8; i++) {
+
+					pmap.drawLine(cx-rd/2, cy-rd/2 + i, cx+rd/2, cy+rd/2 + i);
+					pmap.drawLine(cx+rd/2, cy-rd/2 + i, cx-rd/2, cy+rd/2 + i);
+				}
+				
+			} else {
 				pmap.fillCircle(cx,cy,rd);
 			}
 		}
