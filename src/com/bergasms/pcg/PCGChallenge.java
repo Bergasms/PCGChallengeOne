@@ -179,7 +179,125 @@ public class PCGChallenge extends ApplicationAdapter {
 	
 	private void drawPath(Random r) {
 		
+		ArrayList<Feature> non_ocean_features = new ArrayList<Feature>();
+		
+		Feature start = null;
+		Feature end = null;
+		int sIndex = 0;
+		int eIndex = 0;
+		
+		for(Feature f : features) {
+			if(f.type != FEATURE_TYPE.FT_OCEAN) {
+				non_ocean_features.add(f);
+			}
+			
+			if(f.type == FEATURE_TYPE.FT_BEACH && start == null) {
+				start = f;
+				sIndex = non_ocean_features.size()-1;
+			}
+
+			if(f.type == FEATURE_TYPE.FT_DESTINATION && end == null) {
+				end = f;
+				eIndex = non_ocean_features.size()-1;
+			}
+		}
+		
+		float[][] pts = new float[non_ocean_features.size()][2];
+		int cntr = 0;
+		for(Feature f : non_ocean_features) {
+			pts[cntr][0] = f.x;
+			pts[cntr][1] = f.y;
+			cntr++;
+		}
+		
+		Delaunay del = new Delaunay(pts);
+		int[] links = del.getLinked(sIndex);
+		
+		float dist = Float.MAX_VALUE;
+		Feature best = start;
+		
+		ArrayList<Feature> fullpath = new ArrayList<Feature>();
+		fullpath.add(start);
+		int attemps = 0;
+		while(best.id != end.id) {
+			attemps++;
+			
+			if(attemps >= 200) {
+				System.out.println("Couldn't find path");
+				break;
+			}
+			
+			//find link that gets us closest to the endpoint
+			for(int i : links) {
+				Feature f = non_ocean_features.get(i);
+				float d = Vector2.dst2(end.x, end.y, f.x, f.y);
+				if(d < dist && fullpath.contains(f) == false) {
+					dist = d;
+					best = f;
+					sIndex = i;
+				}
+			}	
+			
+			fullpath.add(best);
+			dist = Float.MAX_VALUE;
+			links = del.getLinked(sIndex);
+		}
+		
+		pmap.setColor(1, 0, 0, 1);
+		
+		int k = 40; //increase k for more fidelity to the spline
+		int pset = (fullpath.size()-1) * 10;
+	    Vector2[] points = new Vector2[k];
+	    Vector2[] dataSet = new Vector2[pset];
+	    
+	    dataSet[0] = new Vector2(fullpath.get(0).x,fullpath.get(0).y);
+	    
+	    dataSet[pset-1] = new Vector2(fullpath.get(fullpath.size()-1).x,fullpath.get(fullpath.size()-1).y);
+	    
+	    
+		for(int i=0; i<fullpath.size()-1; i++) {
+			Feature curr = fullpath.get(i);
+			Feature next = fullpath.get(i+1);
+			
+			for(int j=0; j<10; j++) {
+				dataSet[i*10 + j] = new Vector2(curr.centre.lerp(next.centre, j/10.0f));
+				dataSet[i*10 + j].add(r.nextInt(30)-15, r.nextInt(30)-15);
+			}
+		}
+		
+		CatmullRomSpline<Vector2> myCatmull = new CatmullRomSpline<Vector2>(dataSet, false);
+	    for(int i = 0; i < k; ++i)
+	    {
+	        points[i] = new Vector2();
+	        myCatmull.valueAt(points[i], ((float)i)/((float)k-1));
+	    }
+	    
+	    pmap.setColor(1, 1, 0, 1);
+	    int radius = 3;
+	    int inc = 0;
+	    Vector2 prev = null;
+	    for(Vector2 vn : points) {
+	    	inc++;
+	    	
+	    	if(prev == null) {
+	    		prev = vn;
+	    	} else {
+	    		
+	    		int nx = (int) vn.x;
+	    		int ny = (int) vn.y;
+	    		
+	    		if(prev.x <0 || prev.x >= pmap.getWidth() || prev.y < 0 || prev.y >= pmap.getHeight()) {
+	    			break;
+	    		}
+	    		 
+	    		
+	    		BALine((int)prev.x, (int)prev.y,nx,ny,pmap,radius);
+	    		
+	    		prev = vn;
+	    	}
+	    }
 	}
+ 
 
 	private void drawRivers(Random r) {
 		int rivers = 4;
