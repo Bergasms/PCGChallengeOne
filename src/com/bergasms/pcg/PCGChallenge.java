@@ -35,6 +35,8 @@ public class PCGChallenge extends ApplicationAdapter {
 	MidpointDisplacement beaches;
 	MidpointDisplacement noisy;
 	
+	long seed;
+	
 	Pixmap pmap;
 	byte[][] featureMap;
 	Feature[] features;
@@ -45,6 +47,10 @@ public class PCGChallenge extends ApplicationAdapter {
 	final int fontsize = 24;
 	
 	SpriteBatch renderSprite;
+	
+	public PCGChallenge(long seed_) {
+		seed = seed_;
+	}
 	
 	@Override
 	public void create () {
@@ -76,7 +82,7 @@ public class PCGChallenge extends ApplicationAdapter {
 		vegetation = new MidpointDisplacement(bitcounter, 1.45f, mult);
 		beaches = new MidpointDisplacement(bitcounter, 2.15f, mult);
 		noisy = new MidpointDisplacement(bitcounter, 0.85f, mult);
-		Random r = new Random();
+		Random r = seed == -1 ? new Random() : new Random(seed);
 		
 		int[][] intmap = mpd.getMap(r);
 		
