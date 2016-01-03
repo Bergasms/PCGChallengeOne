@@ -675,8 +675,8 @@ public class PCGChallenge extends ApplicationAdapter {
 		}
 		
 		final String[] places = {"Beach","Forest","Mountains","Ocean","Village", "Treasure"};
-		final String[] descriptor = {"Woe","Doom","Hell","Despair","Suffering","Malignancy","Terror","Fear","Forboding","Fright"};
-		final String[] enemies_ocean = {"Dragons","Giant Squid","Whirlpools","Storms","Who Knows What"};
+		final String[] descriptor = {"Woe","Doom","Hell","Despair","Suffering","Malignancy","Terror","Fear","Forboding","Fright","Suspicion","Hatred","Bandits","Pirates","Fiends","Demons","Goblins","Cannibals","Dragons"};
+		final String[] enemies_ocean = {"Dragons","Giant Squid","Whirlpools","Storms","Who Knows What", "Pirates","Wenches","Kraken"};
 		
 		private void generateName(Random r) {
 			String namebuilder = places[this.type.ordinal()];
